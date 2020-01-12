@@ -22,5 +22,5 @@ namespace CmsShoppingCart
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-    }
+    } 
 }
