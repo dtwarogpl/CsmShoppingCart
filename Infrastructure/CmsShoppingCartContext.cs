@@ -9,11 +9,12 @@ namespace CmsShoppingCart.Infrastructure
 {
     public class CmsShoppingCartContext :DbContext
     {
-        public CmsShoppingCartContext(DbContextOptions<CmsShoppingCartContext> options):base(options)
+        public CmsShoppingCartContext(DbContextOptions<CmsShoppingCartContext> options):
+            base(options)
         {
             
         }
 
-        private DbSet<Page> Pages { get; set; }
+        public DbSet<Page> Pages { get; set; }
     }
 }
