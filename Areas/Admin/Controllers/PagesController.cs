@@ -90,7 +90,7 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
         }
 
 
-        //POST /admin/pages/create
+        //POST /admin/pages/edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Page page)
