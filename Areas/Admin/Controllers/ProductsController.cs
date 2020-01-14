@@ -26,9 +26,20 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
         }
 
         // GET admin/products/
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int p = 1)
         {
-            return View(await _context.Products.OrderBy(x => x.Id).Include(x=>x.Category).ToListAsync());
+
+            var pagesize = 6;
+            var prducts = _context.Products.OrderBy(x => x.Id)
+                                  .Include(x => x.Category)
+                                  .Skip((p - 1) * pagesize)
+                                  .Take(pagesize);
+
+            ViewBag.PageNumber = p;
+            ViewBag.PageRange = pagesize;
+            ViewBag.TotalPages = (int)Math.Ceiling((decimal)_context.Products.Count() / pagesize);
+
+            return View(await prducts.ToListAsync());
         }
 
         public IActionResult Create()
@@ -87,6 +98,122 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
             }
 
             return View(product);
+
+        }
+
+
+        //GET /admin/products/details/5
+        public async Task<IActionResult> Details(int id)
+        {
+
+            var product = await _context.Products.Include(x=>x.Category).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product == null) { return NotFound(); }
+
+            return View(product);
+
+
+
+        }
+
+        //GET /admin/products/edit/id
+        public async Task<IActionResult> Edit(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) { return NotFound(); }
+
+            ViewBag.CategoryId = new SelectList(_context.Categories.OrderBy(x => x.Sorting), "Id", "Name", product.CategoryId);
+
+            return View(product);
+
+        }
+
+        //POST /admin/products/edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id,Product product)
+        {
+            ViewBag.CategoryId = new SelectList(_context.Categories.OrderBy(x => x.Sorting), "Id", "Name", product.CategoryId);
+
+            if (ModelState.IsValid)
+            {
+                product.Slug = product.Name.ToLower()
+                                      .Replace(" ", "-");
+
+
+                var slug = await _context.Products.Where(x=>x.Id!= id).FirstOrDefaultAsync(x => x.Slug == product.Slug);
+                if (slug != null)
+                {
+                    ModelState.AddModelError("", "The product already exists");
+                    return View(product);
+                }
+
+
+               
+                if (product.ImageUpload != null)
+                {
+                    string uploadsDir = Path.Combine(webHostEnvironment.WebRootPath, "media/products");
+
+                    if(!string.Equals(product.Image,"noimage.png"))
+                    {
+                        string oldImagePath = Path.Combine(uploadsDir, product.Image);
+                        if(System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    string imageName = Guid.NewGuid()
+                                    .ToString() +
+                                "_" +
+                                product.ImageUpload.FileName;
+                    string filePath = Path.Combine(uploadsDir, imageName);
+                    FileStream fs = new FileStream(filePath, FileMode.Create);
+                    await product.ImageUpload.CopyToAsync(fs);
+                    fs.Close();
+                    product.Image = imageName;
+                }
+               
+
+                _context.Update(product);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "The product has been edited";
+
+                return RedirectToAction("Index");
+            }
+
+            return View(product);
+
+        }
+
+        //GET /admin/pages/edit/id
+        public async Task<IActionResult> Delete(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) { TempData["Error"] = "The product does not exist"; }
+            else
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                TempData["success"] = "The product has been removed";
+
+            }
+
+            if (!string.Equals(product.Image, "noimage.png"))
+            {
+                string uploadsDir = Path.Combine(webHostEnvironment.WebRootPath, "media/products");
+                string oldImagePath = Path.Combine(uploadsDir, product.Image);
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
+
+            return RedirectToAction("Index");
+
 
         }
 

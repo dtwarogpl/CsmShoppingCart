@@ -38,13 +38,13 @@
                 @item.Name
             </td>
             <td>
-                @item.Price
+                @item.Price.ToString("C2")
             </td>
             <td>
                 @item.Category.Name
             </td>
             <td>
-                image
+                <img src="~/media/products/@item.Image" width="100"/>
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -55,3 +55,7 @@
     }
     </tbody>
 </table>
+
+<div class="d-flex w-100 justify-content-center">
+    <pagination page-count="@ViewBag.TotalPages" page-target="/admin/products" page-number="@ViewBag.PageNumber" page-range="@ViewBag.PageRange"></pagination>
+</div>
