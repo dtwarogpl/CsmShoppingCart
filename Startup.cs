@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TimeSpan = System.TimeSpan;
 
 namespace CmsShoppingCart
 {
@@ -25,6 +26,10 @@ namespace CmsShoppingCart
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMemoryCache();
+            services.AddSession(
+                        //options => TimeSpan.FromDays(2)
+                        );
             services.AddControllersWithViews();
             services.AddDbContext<CmsShoppingCartContext>(
                     options => options.UseSqlServer(Configuration.GetConnectionString("CmsShoppingCartContext")));
@@ -47,6 +52,7 @@ namespace CmsShoppingCart
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
 
             app.UseAuthorization();
 
