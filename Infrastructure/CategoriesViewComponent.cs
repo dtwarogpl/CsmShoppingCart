@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CmsShoppingCart.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace CmsShoppingCart.Infrastructure
+{
+    public class CategoriesViewComponent: ViewComponent
+    {
+        private readonly CmsShoppingCartContext Context;
+
+        public CategoriesViewComponent(CmsShoppingCartContext context)
+        {
+            Context = context;
+        }
+
+        public async Task<IViewComponentResult> InvokeAsync()
+        {
+
+            var categories = await GetCategoriesAsync();
+            return View(categories);
+        }
+
+        private Task<List<Category>> GetCategoriesAsync()
+        {
+            return Context.Categories.OrderBy(x => x.Sorting)
+                          .ToListAsync();
+        }
+    }
+}
