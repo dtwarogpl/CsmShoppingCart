@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CmsShoppingCart.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CmsShoppingCart.Infrastructure
 {
-    public class CmsShoppingCartContext :DbContext
+    public class CmsShoppingCartContext :IdentityDbContext<AppUser>
     {
         public CmsShoppingCartContext(DbContextOptions<CmsShoppingCartContext> options):
             base(options)
