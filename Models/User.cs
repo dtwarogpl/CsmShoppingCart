@@ -15,17 +15,23 @@ namespace CmsShoppingCart.Models
         public string Email{ get; set; }
         [DataType(DataType.Password),Required, MinLength(2, ErrorMessage = "Minimum length is 2")]
         public string Password  { get; set; }
+    }
 
-        public User()
+    public class UserEdit
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; }
+        [DataType(DataType.Password), MinLength(4, ErrorMessage ="Minimum length i 4")]
+        public string Password { get; set; }
+
+        public UserEdit()
         {
-            
         }
 
-        public User(AppUser user)
+        public UserEdit(AppUser appUsuer)
         {
-            UserName = user.UserName;
-            Email = user.Email;
-            Password = user.PasswordHash;
+            Email = appUsuer.Email;
+            Password = appUsuer.PasswordHash;
         }
     }
 }

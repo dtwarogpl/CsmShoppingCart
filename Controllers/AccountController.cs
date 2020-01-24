@@ -19,11 +19,12 @@ namespace CmsShoppingCart.Controllers
 
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        private IPasswordHasher<AppUser> _passwordHasher;
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IPasswordHasher<AppUser> passwordHasher)
         {
             this._userManager = userManager;
             this._signInManager = signInManager;
+            _passwordHasher = passwordHasher;
         }
 
         //POST /account/register
@@ -108,9 +109,31 @@ namespace CmsShoppingCart.Controllers
         {
             AppUser appuser = await _userManager.FindByNameAsync(User.Identity.Name);
 
-            User user = new User(appuser);
+            UserEdit user = new UserEdit(appuser);
 
             return View(user);
+        }
+
+        //POST /account/edit
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UserEdit user)
+        {
+            AppUser appuser = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if(ModelState.IsValid)
+            {
+                appuser.Email = user.Email;
+                if(user.Password!=null) { appuser.PasswordHash = _passwordHasher.HashPassword(appuser, user.Password); }
+
+            }
+
+            IdentityResult result = await _userManager.UpdateAsync(appuser);
+
+            if(result.Succeeded) { TempData["Success"] = "Login data updated"; }
+            return View();
+
         }
     }
 }
