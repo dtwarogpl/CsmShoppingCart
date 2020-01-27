@@ -4,12 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using CmsShoppingCart.Infrastructure;
 using CmsShoppingCart.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CmsShoppingCart.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class PagesController : Controller
     {
 
